@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#define DEFAULT_PRIMES 1000
+#define DEFAULT_PRIMES 100000
 #define DEFAULT_PROCESSES 10
 
 void eratosthenes(int n) {
