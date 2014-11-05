@@ -2,19 +2,17 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define DEFAULT_PRIMES 100000
+#define PRIMES 100000
 #define DEFAULT_PROCESSES 10
 
-void eratosthenes(int n) {
-  if(n < 2)
-    return;
+void eratosthenes() {
+  int i, j, n, m;
+  int sieve[PRIMES];
+  n = PRIMES;
+  m = (int) sqrt((double) n);
 
-  int sieve[n+1];
   sieve[0] = 0;
   sieve[1] = 0;
-
-  int i, j, m;
-  m = (int) sqrt((double) n);
 
   /* initialize all entries > 1 to true */
   for(i = 2; i < n; i++)
@@ -40,19 +38,14 @@ void eratosthenes(int n) {
 
 int main(int argc, char *argv[]) {
   int n = DEFAULT_PROCESSES;
-  int p = DEFAULT_PRIMES;
+  int status, i;
+  pid_t pid = 0;
   
   if (argc > 1) {
     n = atoi(argv[1]);
-    if (argc > 2) {
-      p = atoi(argv[2]);
-    }
   }
 
-  printf("## starting %d processes that will each compute all primes up to %d...\n", n, p);
-
-  int status, i;
-  pid_t pid = 0;
+  printf("## starting %d processes that will each compute all primes up to %d...\n", n, PRIMES);
   
   /* is this ok, or is the point that they should run in parallell? */
   for (i = 0; i < n; i++) {
@@ -64,7 +57,7 @@ int main(int argc, char *argv[]) {
     if (pid == 0) {
       printf("## child\n");
       /* status = system("./soe"); */
-      eratosthenes(p);
+      eratosthenes();
       exit(EXIT_SUCCESS);
     } else {
       printf("## parent\n");
