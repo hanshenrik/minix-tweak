@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <math.h>
 
 #define DEFAULT_PRIMES 100000
@@ -11,26 +10,26 @@ void eratosthenes(int n) {
     return;
 
   int sieve[n+1];
-  sieve[0] = false;
-  sieve[1] = false;
+  sieve[0] = 0;
+  sieve[1] = 0;
 
   int i, j, m;
   m = (int) sqrt((double) n);
 
-  // initialize all entries > 1 to true
+  /* initialize all entries > 1 to true */
   for(i = 2; i < n; i++)
-    sieve[i] = true;
+    sieve[i] = 1;
 
-  // remove non-primes
+  /* remove non-primes */
   for(i = 2; i <= m; i++) {
     if(sieve[i]) {
       for(j = i*i; j <= n; j += i) {
-          sieve[j] = false;
+          sieve[j] = 0;
       }
     }
   }
 
-  // print the primes
+  /* print the primes */
   printf("## finding all primes < %d...\n", n);
   for(i = 0; i < n; i++) {
     if(sieve[i])
@@ -55,7 +54,7 @@ int main(int argc, char *argv[]) {
   int status, i;
   pid_t pid = 0;
   
-  // is this ok, or is the point that they should run in parallell?
+  /* is this ok, or is the point that they should run in parallell? */
   for (i = 0; i < n; i++) {
     pid = fork();
     if (pid < 0 ) {
@@ -63,13 +62,11 @@ int main(int argc, char *argv[]) {
       continue;
     }
     if (pid == 0) {
-      // Child process will return 0 from fork()
       printf("## child\n");
-      // status = system("./soe");
+      /* status = system("./soe"); */
       eratosthenes(p);
       exit(EXIT_SUCCESS);
     } else {
-      // Parent process will return a non-zero value from fork()
       printf("## parent\n");
     }
   }
