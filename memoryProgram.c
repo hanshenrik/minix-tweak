@@ -1,29 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #define DEFAULT_ARRAY_SIZE 100000
 #define DEFAULT_PROCESSES 10
 
-void populateArray(int n) {
-  int *a;
-  int i;
-  time_t seconds;
-  
-  time(&seconds);
-  srand((unsigned int) seconds);
-
-  /* allocate memory for n ints */
-  a = (int *)malloc(sizeof(int)*n);
-  
-  /* read from and write to the array */
-  for (i = 0; i < n; i++) {
-    if (a[i] == 0)
-      a[i] = rand();
-  }
-
-  /* neccessary? */
-  free(a);
+void allocateMemory(int n) {
+  /* allocate  n kB of memory */
+  malloc(n*128*sizeof(double));
 }
 
 int main(int argc, char *argv[]) {
@@ -39,9 +22,14 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  printf("## starting %d processes, each make an array of size %d...\n", n, p);
+  /* don't take up more than 1GB of memory */
+  if (n*p > 1000000000) {
+    printf("## input suggests taking up 1GB of memory -- please don't.\n");
+    exit(EXIT_SUCCESS);
+  }
+
+  printf("## starting %d processes, each to take up %d kB of memory...\n", n, p);
   
-  /* is this ok, or is the point that they should run in parallell? */
   for (i = 0; i < n; i++) {
     pid = fork();
     if (pid < 0 ) {
@@ -50,8 +38,7 @@ int main(int argc, char *argv[]) {
     }
     if (pid == 0) {
       printf("## child\n");
-      /* status = system("./soe"); */
-      populateArray(p);
+      allocateMemory(p);
       exit(EXIT_SUCCESS);
     } else {
       printf("## parent\n");
