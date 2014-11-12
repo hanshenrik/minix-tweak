@@ -7,10 +7,12 @@
 void allocateMemory(int n) {
   /* allocate memory for n ints */
   int i;
-  int *array = (int*) malloc(n*sizeof(int));
+  int *array = malloc(n*sizeof(int));
 
   for (i = 0; i < n; i++)
     array[i] = i;
+
+  free(array);
 }
 
 int main(int argc, char *argv[]) {
@@ -28,7 +30,7 @@ int main(int argc, char *argv[]) {
 
   /* don't take up more than 1GB of memory */
   if (n*p*256*sizeof(int) > 1000000000) {
-    printf("## input suggests taking up 1GB of memory -- please don't.\n");
+    printf("## input suggests taking up more than 1GB of memory -- please don't.\n");
     exit(EXIT_SUCCESS);
   }
 
