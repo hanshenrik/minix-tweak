@@ -5,19 +5,21 @@
 #define DEFAULT_PROCESSES 10
 
 void allocateMemory(int n) {
-  /* allocate memory for n char */
   int i;
+
+  /* allocate memory for n char */
   char *array = malloc(n*sizeof(char));
 
+  /* write something to all entries in the array */
   for (i = 0; i < n; i++)
     array[i] = 'z';
 
+  /* free up the used memory */
   free(array);
 }
 
 int main(int argc, char *argv[]) {
-  int n = DEFAULT_PROCESSES;
-  int p = DEFAULT_ARRAY_SIZE;
+  int n = DEFAULT_PROCESSES, p = DEFAULT_ARRAY_SIZE;
   int status = 0, wpid, i;
   pid_t pid = 0;
 
@@ -43,11 +45,11 @@ int main(int argc, char *argv[]) {
       continue;
     }
     if (pid == 0) {
-      printf("## child\n");
+      printf("## child executing\n");
       allocateMemory(p);
       exit(EXIT_SUCCESS);
     } else {
-      printf("## parent\n");
+      printf("## parent executing\n");
     }
   }
 

@@ -27,7 +27,6 @@ void eratosthenes(int n) {
   }
 
   /* print the primes */
-  printf("## finding all primes < %d...\n", n);
   for(i = 0; i < n; i++) {
     if(sieve[i])
       printf("%d, ", i);
@@ -36,8 +35,7 @@ void eratosthenes(int n) {
 }
 
 int main(int argc, char *argv[]) {
-  int n = DEFAULT_PROCESSES;
-  int p = DEFAULT_PRIMES;
+  int n = DEFAULT_PROCESSES, p = DEFAULT_PRIMES;
   int status = 0, wpid, i;
   pid_t pid = 0;
 
@@ -57,11 +55,11 @@ int main(int argc, char *argv[]) {
       continue;
     }
     if (pid == 0) {
-      printf("## child\n");
+      printf("## child executing\n");
       eratosthenes(p);
       exit(EXIT_SUCCESS);
     } else {
-      printf("## parent\n");
+      printf("## parent executing\n");
     }
   }
 
