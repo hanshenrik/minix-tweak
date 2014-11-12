@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEFAULT_ARRAY_SIZE 100000
+#define DEFAULT_ARRAY_SIZE 10000
 #define DEFAULT_PROCESSES 10
 
 void allocateMemory(int n) {
