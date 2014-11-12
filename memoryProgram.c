@@ -5,8 +5,12 @@
 #define DEFAULT_PROCESSES 10
 
 void allocateMemory(int n) {
-  /* allocate  n kB of memory */
-  malloc(n*128*sizeof(double));
+  /* allocate memory for n ints */
+  int *array = (int*) malloc(n*sizeof(int));
+  int i;
+
+  for (i = 0; i < n; i++)
+    array[i] = i;
 }
 
 int main(int argc, char *argv[]) {
@@ -23,12 +27,12 @@ int main(int argc, char *argv[]) {
   }
 
   /* don't take up more than 1GB of memory */
-  if (n*p > 1000000000) {
+  if (n*p*256*sizeof(int) > 1000000000) {
     printf("## input suggests taking up 1GB of memory -- please don't.\n");
     exit(EXIT_SUCCESS);
   }
 
-  printf("## starting %d processes, each to take up %d kB of memory...\n", n, p);
+  printf("## starting %d processes, each to take up memory for %d ints...\n", n, p);
   
   for (i = 0; i < n; i++) {
     pid = fork();
