@@ -5,12 +5,12 @@
 #define DEFAULT_PROCESSES 10
 
 void allocateMemory(int n) {
-  /* allocate memory for n ints */
+  /* allocate memory for n char */
   int i;
-  int *array = malloc(n*sizeof(int));
+  char *array = malloc(n*sizeof(char));
 
   for (i = 0; i < n; i++)
-    array[i] = i;
+    array[i] = 'z';
 
   free(array);
 }
@@ -18,7 +18,7 @@ void allocateMemory(int n) {
 int main(int argc, char *argv[]) {
   int n = DEFAULT_PROCESSES;
   int p = DEFAULT_ARRAY_SIZE;
-  int status, i;
+  int status = 0, wpid, i;
   pid_t pid = 0;
 
   if (argc > 1) {
@@ -28,13 +28,13 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  /* don't take up more than 1GB of memory */
-  if (n*p*256*sizeof(int) > 1000000000) {
-    printf("## input suggests taking up more than 1GB of memory -- please don't.\n");
+  /* don't take up more than 10MB of memory */
+  if (n*p*sizeof(char) > 10000000) {
+    printf("## input suggests taking up more than 10MB of memory -- please don't.\n");
     exit(EXIT_SUCCESS);
   }
 
-  printf("## starting %d processes, each to take up memory for %d ints...\n", n, p);
+  printf("## starting %d processes, each to take up memory for %d chars...\n", n, p);
   
   for (i = 0; i < n; i++) {
     pid = fork();
@@ -50,6 +50,10 @@ int main(int argc, char *argv[]) {
       printf("## parent\n");
     }
   }
+
+  /* wait for all children to exit */
+  while ( (wpid = wait(&status) ) > 0)
+    printf("## process %d exited\n", wpid);
 
   printf("### last line of main program ###\n");
   exit(EXIT_SUCCESS);
