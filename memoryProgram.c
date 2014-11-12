@@ -6,8 +6,8 @@
 
 void allocateMemory(int n) {
   /* allocate memory for n ints */
-  int *array = (int*) malloc(n*sizeof(int));
   int i;
+  int *array = (int*) malloc(n*sizeof(int));
 
   for (i = 0; i < n; i++)
     array[i] = i;
