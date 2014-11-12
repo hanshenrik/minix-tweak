@@ -7,7 +7,7 @@
 
 void eratosthenes(int n) {
   int i, j, m;
-  int sieve[n]; /* make into pointer array and use malloc? */
+  int sieve[n];
   m = (int) sqrt((double) n);
 
   sieve[0] = 0;
@@ -38,7 +38,7 @@ void eratosthenes(int n) {
 int main(int argc, char *argv[]) {
   int n = DEFAULT_PROCESSES;
   int p = DEFAULT_PRIMES;
-  int status, i;
+  int status = 0, wpid, i;
   pid_t pid = 0;
 
   if (argc > 1) {
@@ -50,7 +50,6 @@ int main(int argc, char *argv[]) {
 
   printf("## starting %d processes, each compute all primes up to %d...\n", n, p);
   
-  /* is this ok, or is the point that they should run in parallell? */
   for (i = 0; i < n; i++) {
     pid = fork();
     if (pid < 0 ) {
@@ -59,13 +58,16 @@ int main(int argc, char *argv[]) {
     }
     if (pid == 0) {
       printf("## child\n");
-      /* status = system("./soe"); */
       eratosthenes(p);
       exit(EXIT_SUCCESS);
     } else {
       printf("## parent\n");
     }
   }
+
+  /* wait for all children to exit */
+  while ( (wpid = wait(&status) ) > 0)
+    printf("## process %d exited\n", wpid);
 
   printf("### last line of main program ###\n");
   exit(EXIT_SUCCESS);
