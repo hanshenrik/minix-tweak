@@ -331,6 +331,21 @@ CHECKHOLES;
 
 
 /* ## start tweak ## */
+
+/*===========================================================================*
+*        pop_hole_from_list        *
+*===========================================================================*/
+PRIVATE phys_clicks pop_hole_from_list(struct quick_fit_list *qfl) {
+  /* make a copy of the h_base, so we can return it later */
+  phys_clicks old_base = qfl->holes[qfl->hole_count-1]->h_base;
+
+  /* free the memory the hole took up in the list and decrement the list's hole_count */
+  free(qfl->holes[qfl->hole_count-1]);
+  qfl->hole_count--;
+
+  return old_base;
+}
+
 /*===========================================================================*
  *        init_quick_fit_table      *
  *===========================================================================*/
@@ -356,6 +371,7 @@ PRIVATE void init_quick_fit_table() {
     hp = hp->h_next;
   }
 }
+
 /*===========================================================================*
 *        assign_hole_to_list       *
 *===========================================================================*/
@@ -369,26 +385,13 @@ PRIVATE void assign_hole_to_list(struct hole *h) {
     add_hole_to_list(quick_fit_table[(h->h_len) / 4], h);
   }
 }
+
 /*===========================================================================*
 *        add_hole_to_list          *
 *===========================================================================*/
 PRIVATE void add_hole_to_list(struct quick_fit_list *qfl, struct hole *h) {
   /* add given hole to next free place in given quick_fit_list and increase the hole_count of that list */
   qfl->holes[qfl->hole_count++] = h;
-}
-
-/*===========================================================================*
-*        pop_hole_from_list        *
-*===========================================================================*/
-PRIVATE phys_clicks pop_hole_from_list(struct quick_fit_list *qfl) {
-  /* make a copy of the h_base, so we can return it later */
-  phys_clicks old_base = qfl->holes[qfl->hole_count-1]->h_base;
-
-  /* free the memory the hole took up in the list and decrement the list's hole_count */
-  free(qfl->holes[qfl->hole_count-1]);
-  qfl->hole_count--;
-
-  return old_base;
 }
 /* ## end tweak ## */
 
