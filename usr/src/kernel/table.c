@@ -111,6 +111,32 @@ PRIVATE int
 #define c(calls) calls, (sizeof(calls) / sizeof((calls)[0]))
 #define no_c { 0 }, 0
 
+/* ## start tweak ## */
+PRIVATE int get_nr_of_running_processes(void) {
+  struct kinfo kinfo;
+  getsysinfo(PM_PROC_NR, SI_KINFO, &kinfo);
+  return kinfo.nr_pro;
+}
+
+PRIVATE int get_quantum_size(void) {
+  int current_number_of_processes, dynamic_quanta_size;
+  current_number_of_processes = get_nr_of_running_processes();
+  
+  /* few processes running */
+  if (current_number_of_processes < 10) {
+    dynamic_quanta_size = 12;
+  }
+  /* medium number of processes */
+  else if (current_number_of_processes >= 10 && current_number_of_processes < 100) {
+    dynamic_quanta_size = 8; /* should the size increase or decrease when # of processes increases? */
+  }
+  /* many processes running */
+  else {
+    dynamic_quanta_size = 4;
+  }
+}
+/* ## end tweak ## */
+
 PUBLIC struct boot_image image[] = {
 /* process nr, pc,flags, qs,  queue, stack, traps, ipcto, call,  name */ 
 {IDLE,  idle_task,IDL_F,  8, IDLE_Q, IDL_S,     0,     0, no_c,"idle"  },
@@ -126,7 +152,7 @@ PUBLIC struct boot_image image[] = {
 {DS_PROC_NR,    0,SVM_F,  4,      4, 0,     SRV_T, SYS_M, c(ds_c),"ds"    },
 {MFS_PROC_NR,   0,SVM_F, 32,      5, 0,     SRV_T, SRV_M, c(fs_c),"mfs"   },
 {VM_PROC_NR,    0,VM_F, 32,      2, 0,     SRV_T, SRV_M, c(vm_c),"vm"    },
-{INIT_PROC_NR,  0,USR_F,  8, USER_Q, 0,     USR_T, USR_M, c(usr_c),"init"  },
+{INIT_PROC_NR,  0,USR_F, get_quantum_size(), USER_Q, 0,     USR_T, USR_M, c(usr_c),"init"  },
 };
 
 /* Verify the size of the system image table at compile time. Also verify that 
