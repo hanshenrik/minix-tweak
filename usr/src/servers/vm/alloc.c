@@ -114,6 +114,10 @@ PRIVATE bitchunk_t pagemap[CHUNKS];
 }
 
 /* ### START CUSTOM STUFF ### */
+  /*  0 = First fit
+      1 = Best fit
+      2 = Quick fit
+  */
 PRIVATE int alloc_algorithm = 0;
 /* ### END CUSTOM STUFF ###*/
 
