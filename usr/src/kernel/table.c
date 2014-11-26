@@ -121,7 +121,7 @@ PRIVATE int get_nr_of_running_processes(void) {
 PRIVATE int get_quantum_size(void) {
   int current_number_of_processes, dynamic_quanta_size;
   current_number_of_processes = get_nr_of_running_processes();
-  
+
   /* few processes running */
   if (current_number_of_processes < 10) {
     dynamic_quanta_size = 12;
