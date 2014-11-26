@@ -121,12 +121,7 @@ PRIVATE struct quick_fit_list {
 };
 
 PRIVATE struct quick_fit_list *quick_fit_table[_NR_LISTS];
-
-  /*  0 = First fit
-      1 = Best fit
-      2 = Quick fit
-  */
-PRIVATE int alloc_algorithm = 0;
+PRIVATE int alloc_algorithm = 0; /* 0 = First fit, 1 = Best fit, 2 = Quick fit */
 /* ## end tweak ## */
 
 
@@ -349,8 +344,7 @@ PRIVATE phys_clicks pop_hole_from_list(struct quick_fit_list *qfl) {
 /*===========================================================================*
  *        init_quick_fit_table      *
  *===========================================================================*/
-PRIVATE void init_quick_fit_table() {
-  /* NB! Has to be called in some init method before starting to allocate memory! */
+PRIVATE void init_quick_fit_table(void) {
   register struct hole *hp, *prev_ptr;
   int i;
 
@@ -560,8 +554,8 @@ struct memory *chunks;		/* list of free memory chunks */
 
   /* Put all holes on the free list. */
   for (hp = &hole[0]; hp < &hole[_NR_HOLES]; hp++) {
-	hp->h_next = hp + 1;
-	hp->h_base = hp->h_len = 0;
+  	hp->h_next = hp + 1;
+  	hp->h_base = hp->h_len = 0;
   }
   hole[_NR_HOLES-1].h_next = NIL_HOLE;
   hole_head = NIL_HOLE;
@@ -578,8 +572,11 @@ struct memory *chunks;		/* list of free memory chunks */
 		if(first || to > mem_high) mem_high = to;
 		FREE_MEM(chunks[i].base, chunks[i].size);
 		first = 0;
-	}
+	 }
   }
+  /* ## start tweak ## */
+  init_quick_fit_table();
+  /* ## end tweak ## */
 
   CHECKHOLES;
 }
