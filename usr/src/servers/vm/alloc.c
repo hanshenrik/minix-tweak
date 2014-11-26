@@ -113,13 +113,21 @@ PRIVATE bitchunk_t pagemap[CHUNKS];
 	phys_writeaddr((p), (bytes), (next));	\
 }
 
-/* ### START CUSTOM STUFF ### */
+/* ## start tweak ## */
+#define _NR_LISTS 8
+PRIVATE struct quick_fit_list {
+  struct hole *holes[_NR_HOLES];
+  int hole_count;
+};
+
+PRIVATE struct quick_fit_list *quick_fit_table[_NR_LISTS];
+
   /*  0 = First fit
       1 = Best fit
       2 = Quick fit
   */
 PRIVATE int alloc_algorithm = 0;
-/* ### END CUSTOM STUFF ###*/
+/* ## end tweak ## */
 
 
 #if SANITYCHECKS
@@ -199,9 +207,11 @@ int line;
  *===========================================================================*/
 PUBLIC phys_clicks alloc_mem_f(phys_clicks clicks, u32_t memflags)
 {
-/* Allocate a block of memory from the free list using first fit. The block
- * consists of a sequence of contiguous bytes, whose length in clicks is
- * given by 'clicks'.  A pointer to the block is returned.  The block is
+/* ## start tweak ## */
+/* Allocate a block of memory from the free list using (0) first, (1) best
+ * or (2) quick fit, based on value of alloc_algorithm (0, 1 or 2). The
+ * block consists of a sequence of contiguous bytes, whose length in clicks
+ * is given by 'clicks'.  A pointer to the block is returned.  The block is
  * always on a click boundary.  This procedure is called when memory is
  * needed for FORK or EXEC.
  */
@@ -211,20 +221,20 @@ PUBLIC phys_clicks alloc_mem_f(phys_clicks clicks, u32_t memflags)
 
   if(memflags & PAF_ALIGN64K) {
   	align_clicks = (64 * 1024) / CLICK_SIZE;
-	clicks += align_clicks;
+    clicks += align_clicks;
   }
 
   if(vm_paged) {
-	vm_assert(CLICK_SIZE == VM_PAGE_SIZE);
-	mem = alloc_pages(clicks, memflags);
+  	vm_assert(CLICK_SIZE == VM_PAGE_SIZE);
+  	mem = alloc_pages(clicks, memflags);
   } else {
-CHECKHOLES;
+    CHECKHOLES;
 
-    prev_ptr = NIL_HOLE;
-    hp = hole_head;
     switch(alloc_algorithm) {
       default:
       case(0): /* First fit */
+        prev_ptr = NIL_HOLE;
+        hp = hole_head;
         while (hp != NIL_HOLE) {
           if (hp->h_len >= clicks) { /* We found a hole that is big enough. Use it. */
             old_base = hp->h_base;  /* remember where it started */
@@ -286,8 +296,17 @@ CHECKHOLES;
         
         break;
       case(2): /* Quick fit */
+        if (clicks >= 32) {
+          /* 32/4 will exceed _NR_LISTS, so use hole from last list, the one that contains holes of sizes 28-> */
+          mem = pop_hole_from_list(quick_fit_table[_NR_LISTS-1]);
+        }
+        else {
+          /* use hole from list at index (clicks/4) in quick_fit_table */
+          mem = pop_hole_from_list(quick_fit_table[(h->h_len) / 4]);
+        }
         break;
     }
+    /* ## end tweak ## */
   }
 
   if(mem == NO_MEM)
@@ -309,6 +328,70 @@ CHECKHOLES;
 
   return mem;
 }
+
+
+/* ## start tweak ## */
+/*===========================================================================*
+ *        init_quick_fit_table      *
+ *===========================================================================*/
+PRIVATE void init_quick_fit_table() {
+  /* NB! Has to be called in some init method before starting to allocate memory! */
+  register struct hole *hp, *prev_ptr;
+  int i;
+
+  /* allocate memory to each list in the table, initially there are 0 holes in each list */
+  for (i = 0; i < NO_LISTS; i++) {
+    quick_fit_table[i] = malloc(sizeof(struct quick_fit_list));
+    quick_fit_table[i]->hole_count = 0;
+  }
+
+  /* assign each hole in holes to it's appropriate quick_fit_list */
+  prev_ptr = NIL_HOLE;
+  hp = hole_head;
+  while (hp != NIL_HOLE) {
+    assign_hole_to_list(hp);
+    CHECKHOLES;
+
+    prev_ptr = hp;
+    hp = hp->h_next;
+  }
+}
+/*===========================================================================*
+*        assign_hole_to_list       *
+*===========================================================================*/
+PRIVATE void assign_hole_to_list(struct hole *h) {
+  if (h->h_len >= 32) {
+    /* h_len/4 will exceed NO_LISTS, so assign to last list, the one that contains holes of size 28-> */
+    add_hole_to_list(quick_fit_table[NO_LISTS-1], h);
+  }
+  else {
+    /* assign to list at index (h_len/4) in quick_fit_table */
+    add_hole_to_list(quick_fit_table[(h->h_len) / 4], h);
+  }
+}
+/*===========================================================================*
+*        add_hole_to_list          *
+*===========================================================================*/
+PRIVATE void add_hole_to_list(struct quick_fit_list *qfl, struct hole *h) {
+  /* add given hole to next free place in given quick_fit_list and increase the hole_count of that list */
+  qfl->holes[qfl->hole_count++] = h;
+}
+
+/*===========================================================================*
+*        pop_hole_from_list        *
+*===========================================================================*/
+PRIVATE phys_clicks pop_hole_from_list(struct quick_fit_list *qfl) {
+  /* make a copy of the h_base, so we can return it later */
+  phys_clicks old_base = qfl->holes[qfl->hole_count-1]->h_base;
+
+  /* free the memory the hole took up in the list and decrement the list's hole_count */
+  free(qfl->holes[qfl->hole_count-1]);
+  qfl->hole_count--;
+
+  return old_base;
+}
+/* ## end tweak ## */
+
 
 /*===========================================================================*
  *        do_allocalgorithm         *
