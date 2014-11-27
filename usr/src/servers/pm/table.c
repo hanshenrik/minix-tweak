@@ -77,8 +77,8 @@ _PROTOTYPE (int (*call_vec[]), (void) ) = {
 	do_get,		/* 63 = getpgrp	*/
 	do_itimer,	/* 64 = itimer  */
 	/* ## start tweak ## */
-	do_alloc_algorithm,	/* 65 = getallocmech	*/
-	do_alloc_algorithm, /* 66 = setallocmech  */
+	do_allocalgorithm,	/* 65 = getallocmech	*/
+	do_allocalgorithm, /* 66 = setallocmech  */
 	/* ## end tweak ## */
 	no_sys,		/* 67 = unused	*/
 	no_sys,		/* 68 = unused  */

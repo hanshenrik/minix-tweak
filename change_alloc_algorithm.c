@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <lib.h>
 
-int get_alloc_algorithm(void){
+int getallocalgorithm(void){
    message m;
    return(_syscall(MM, 65, &m));
 }
-int set_alloc_algorithm(int flag){
+int setallocalgorithm(int flag){
    message m;
    m.m1_i1 = flag;
    return(_syscall(MM, 66, &m));
@@ -19,8 +19,8 @@ int main(int argc, char *argv[]){
       exit(1);
    }
    algorithm_nr = atoi(argv[1]);
-   printf("set_alloc_algorithm(%d)\n", algorithm_nr);
-   setallocmech(algorithm_nr);
-   printf("get_alloc_algorithm() = %d\n", getallocmech());
+   printf("setallocalgorithm(%d)\n", algorithm_nr);
+   setallocalgorithm(algorithm_nr);
+   printf("getallocalgorithm() = %d\n", getallocalgorithm());
    return 0;
 }

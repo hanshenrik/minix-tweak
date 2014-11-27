@@ -178,6 +178,6 @@ _PROTOTYPE(int do_notify_sig, (message *m));
 _PROTOTYPE(void init_query_exit, (void));
 
 /* ## start tweak ## */
-/* allocmech.c */
-_PROTOTYPE( int do_alloc_algorithm, (void) );
+/* allocalgorithm.c */
+_PROTOTYPE( int do_allocalgorithm, (void) );
 /* ## end tweak ## */
