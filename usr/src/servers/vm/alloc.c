@@ -387,38 +387,33 @@ PRIVATE void add_hole_to_list(struct quick_fit_list *qfl, struct hole *h) {
   /* add given hole to next free place in given quick_fit_list and increase the hole_count of that list */
   qfl->holes[qfl->hole_count++] = h;
 }
-/* ## end tweak ## */
-
 
 /*===========================================================================*
  *        do_allocalgorithm         *
  *===========================================================================*/
 PUBLIC int do_allocalgorithm(void){
-   switch(call_nr){
+  printf("## do_allocalgorithm() in alloc.c!");
+   switch(call_nr) {
       case(PM_ALLOC_GET):
-         return alloc_algorithm;
-         break;
+        return alloc_algorithm;
+        break;
       case(PM_ALLOC_SET):
-         if(mp->mp_effuid != SUPER_USER){
-            printf("## Error: Must be SUPER_USER.\n");
-            return EPERM;
-         }
-         if(m_in.m1_i1 < 0 || m_in.m1_i1 > 4){
-            printf("## Error.\n");
-            return EINVAL;
-         }
-         if(m_in.m1_i1 == 4){
-            long random_seed = 0;
-            getuptime(&random_seed);
-            srandom(random_seed);
-         }
-         alloc_algorithm = m_in.m1_i1;
-         return OK;
-         break;
+        if(mp->mp_effuid != SUPER_USER){
+          printf("## Error: Must be SUPER_USER.\n");
+          return EPERM;
+        }
+        if(m_in.m1_i1 < 0 || m_in.m1_i1 > 3){
+          printf("## Error. alloc algorithm id must be > 0 and < 3 \n");
+          return EINVAL;
+        }
+        alloc_algorithm = m_in.m1_i1;
+        return OK;
+        break;
       default:
-         panic(__FILE__,"## Error: Received bad signal in do_allocalgorithm.", NO_NUM);
+        panic(__FILE__,"## Error: Received bad signal in do_allocalgorithm.", NO_NUM);
    }
 }
+/* ## end tweak ## */
 
 /*===========================================================================*
  *				free_mem_f				     *
