@@ -115,12 +115,15 @@ PRIVATE int
 PRIVATE int get_nr_of_running_processes(void) {
   struct kinfo kinfo;
   getsysinfo(PM_PROC_NR, SI_KINFO, &kinfo);
+  printf("## kinfo.nr_pro = %d\n", kinfo.nr_pro);
   return kinfo.nr_pro;
 }
 
 PRIVATE int get_quantum_size(void) {
   int current_number_of_processes, dynamic_quanta_size;
   current_number_of_processes = get_nr_of_running_processes();
+
+  printf("## setting dynamic_quanta_size based on current_number_of_processes = %d\n", current_number_of_processes);
 
   /* few processes running */
   if (current_number_of_processes < 10) {
@@ -134,6 +137,8 @@ PRIVATE int get_quantum_size(void) {
   else {
     dynamic_quanta_size = 4;
   }
+  printf("## dynamic_quanta_size = %d\n", dynamic_quanta_size);
+
 }
 /* ## end tweak ## */
 
