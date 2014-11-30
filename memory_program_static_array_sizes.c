@@ -4,7 +4,7 @@
 #define DEFAULT_PROCESSES 9
 #define SMALL_ARRAY_SIZE 100
 #define MEDIUM_ARRAY_SIZE 10000
-#define BIG_ARRAY_SIZE 100000
+#define BIG_ARRAY_SIZE 1000000
 
 void allocateMemory(int n) {
   int i;
