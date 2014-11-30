@@ -54,6 +54,5 @@ int main(int argc, char *argv[]) {
   /* wait for all children to exit */
   while ( (wpid = wait(&status) ) > 0) {}
 
-  printf("## last line of main program \n");
   exit(EXIT_SUCCESS);
 }

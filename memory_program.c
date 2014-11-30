@@ -36,8 +36,6 @@ int main(int argc, char *argv[]) {
     exit(EXIT_SUCCESS);
   }
 
-  printf("## starting %d processes, each to take up memory for %d chars...\n", n, p);
-  
   for (i = 0; i < n; i++) {
     pid = fork();
     if (pid < 0 ) {
@@ -53,6 +51,5 @@ int main(int argc, char *argv[]) {
   /* wait for all children to exit */
   while ( (wpid = wait(&status) ) > 0) {}
 
-  printf("### last line of main program ###\n");
   exit(EXIT_SUCCESS);
 }

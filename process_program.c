@@ -36,8 +36,6 @@ int main(int argc, char *argv[]) {
     n = atoi(argv[1]);
   }
 
-  printf("## starting %d processes, each compute all primes up to %d...\n", n, p);
-  
   for (i = 0; i < n; i++) {
     pid = fork();
     if (pid < 0 ) {
@@ -53,6 +51,5 @@ int main(int argc, char *argv[]) {
   /* wait for all children to exit */
   while ( (wpid = wait(&status) ) > 0) {}
 
-  printf("## last line of main program\n");
   exit(EXIT_SUCCESS);
 }
