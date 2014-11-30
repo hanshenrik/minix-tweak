@@ -25,13 +25,6 @@ void eratosthenes(void) {
       }
     }
   }
-
-  /* print the primes
-  for(i = 0; i < n; i++) {
-    if(sieve[i])
-      printf("%d, ", i);
-  }
-  printf("\n"); */
 }
 
 int main(int argc, char *argv[]) {
@@ -58,8 +51,7 @@ int main(int argc, char *argv[]) {
   }
 
   /* wait for all children to exit */
-  while ( (wpid = wait(&status) ) > 0)
-    printf("## process %d exited\n", wpid);
+  while ( (wpid = wait(&status) ) > 0) {}
 
   printf("## last line of main program\n");
   exit(EXIT_SUCCESS);

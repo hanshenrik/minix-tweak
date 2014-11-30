@@ -45,17 +45,13 @@ int main(int argc, char *argv[]) {
       continue;
     }
     if (pid == 0) {
-      printf("## child executing\n");
       allocateMemory(p);
       exit(EXIT_SUCCESS);
-    } else {
-      printf("## parent executing\n");
-    }
+    } else {}
   }
 
   /* wait for all children to exit */
-  while ( (wpid = wait(&status) ) > 0)
-    printf("## process %d exited\n", wpid);
+  while ( (wpid = wait(&status) ) > 0) {}
 
   printf("### last line of main program ###\n");
   exit(EXIT_SUCCESS);
