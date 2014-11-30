@@ -26,12 +26,12 @@ void eratosthenes(void) {
     }
   }
 
-  /* print the primes */
+  /* print the primes
   for(i = 0; i < n; i++) {
     if(sieve[i])
       printf("%d, ", i);
   }
-  printf("\n");
+  printf("\n"); */
 }
 
 int main(int argc, char *argv[]) {
