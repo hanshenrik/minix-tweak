@@ -27,8 +27,6 @@ int main(int argc, char *argv[]) {
   int status = 0, wpid, i;
   pid_t pid = 0;
 
-  printf("%zu\n", sizeof(unsigned int));
-
   if (argc > 1) {
     n = atoi(argv[1]);
     if (argc > 2) {
