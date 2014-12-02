@@ -3,25 +3,31 @@
 
 #define DEFAULT_ARRAY_SIZE 10000
 #define DEFAULT_PROCESSES 10
+#define NR_ARRAYS 300
 
 void allocateMemory(int n) {
-  int i;
+  int i, j;
 
-  /* allocate memory for n char */
-  char *array = malloc(n*sizeof(char));
-
-  /* write something to all entries in the array */
-  for (i = 0; i < n; i++)
-    array[i] = 'z';
-
-  /* free up the used memory */
-  free(array);
+  /* create an array to take up memory a bunch of times */
+  for (i = 0; i < NR_IO_TO_ARRAY; i++) {
+    /* allocate memory for n chars */
+    char *array = malloc(n*sizeof(char));
+    
+    /* write something to all entries in the array */
+    for (j = 0; j < n; j++)
+      array[j] = 'z';
+    
+    /* free up the used memory */
+    free(array);
+  }
 }
 
 int main(int argc, char *argv[]) {
   int n = DEFAULT_PROCESSES, p = DEFAULT_ARRAY_SIZE;
   int status = 0, wpid, i;
   pid_t pid = 0;
+
+  printf("%zu\n", sizeof(unsigned int));
 
   if (argc > 1) {
     n = atoi(argv[1]);
@@ -35,6 +41,7 @@ int main(int argc, char *argv[]) {
     printf("## input suggests taking up more than 10MB of memory -- please don't.\n");
     exit(EXIT_SUCCESS);
   }
+
 
   for (i = 0; i < n; i++) {
     pid = fork();
