@@ -9,7 +9,7 @@ void allocateMemory(int n) {
   int i, j;
 
   /* create an array to take up memory a bunch of times */
-  for (i = 0; i < NR_IO_TO_ARRAY; i++) {
+  for (i = 0; i < NR_ARRAYS; i++) {
     /* allocate memory for n chars */
     char *array = malloc(n*sizeof(char));
     
