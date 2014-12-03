@@ -26,9 +26,10 @@
 #include "util.h"
 #include "sanitycheck.h"
 #include "region.h"
-/* include some header file for table.c */
 
 /* ## start tweak ## */
+#include <unistd.h>
+
 PRIVATE int get_nr_of_running_processes(void) {
   struct kinfo kinfo;
   getsysinfo(PM_PROC_NR, SI_KINFO, &kinfo);
@@ -36,40 +37,41 @@ PRIVATE int get_nr_of_running_processes(void) {
   return kinfo.nr_procs;
 }
 
-PRIVATE int determine_quantum_size(void) {
-  int current_number_of_processes;
+PRIVATE int get_quantum_size(void) {
+  int current_number_of_processes, dynamic_quantum_size;
+  
   current_number_of_processes = get_nr_of_running_processes();
-
-  printf("## setting dynamic_quanta_size based on current_number_of_processes = %d\n", current_number_of_processes);
 
   /* few processes running */
   if (current_number_of_processes < 5) {
-    dynamic_quanta_size = 2;
+    dynamic_quantum_size = 2;
   }
   /* medium number of processes */
   else if (current_number_of_processes >= 5 && current_number_of_processes < 20) {
-    dynamic_quanta_size = 8;
+    dynamic_quantum_size = 8;
   }
   /* many processes running */
   else {
-    dynamic_quanta_size = 16;
+    dynamic_quantum_size = 16;
   }
+  printf("## dynamic_quantum_size should be %d based on current_number_of_processes = %d\n", dynamic_quantum_size, current_number_of_processes);
+  return dynamic_quantum_size;
 }
+/* ## end tweak ## */
+
 /*===========================================================================*
  *        do_fork              *
  *===========================================================================*/
 PUBLIC int do_fork(message *msg)
 {
-  int r, proc, s, childproc, fullvm, dynamic_quantum_size;
+  int r, proc, s, childproc, fullvm, quantum_size;
   struct vmproc *vmp, *vmc;
   pt_t origpt;
   vir_bytes msgaddr;
 
-  dynamic_quantum_size = determine_quantum_size();
-
-  /* find a way to call the set_dynamic_quantum_size(dynamic_quantum_size) in /user/src/kernel/table.c */
-
-/* ## end tweak ## */
+  /* ## start tweak ## */
+  quantum_size = get_quantum_size();
+  /* ## end tweak ## */
 
   SANITYCHECK(SCL_FUNCTIONS);
 
@@ -156,6 +158,9 @@ PUBLIC int do_fork(message *msg)
   }
 
   /* Create a copy of the parent's core image for the child. */
+  /* ## start tweak ## */  
+  /* We need to change the qs value of the parent's image */
+  /* ## end tweak ## */
   child_abs = (phys_bytes) child_base << CLICK_SHIFT;
   parent_abs = (phys_bytes) vmp->vm_arch.vm_seg[D].mem_phys << CLICK_SHIFT;
   FIXME("VM uses kernel for abscopy");
