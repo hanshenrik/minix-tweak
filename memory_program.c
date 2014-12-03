@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
     exit(EXIT_SUCCESS);
   }
 
-
   for (i = 0; i < n; i++) {
     pid = fork();
     if (pid < 0 ) {
