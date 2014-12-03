@@ -113,13 +113,6 @@ PRIVATE int
 
 /* ## start tweak ## */
 
-PRIVATE int dynamic_quanta_size = 8;
-
-PUBLIC void set_quantum_size(int qs) {
-  dynamic_quanta_size = qs;
-  printf("## dynamic_quanta_size = %d\n", dynamic_quanta_size);
-}
-
 PUBLIC struct boot_image image[] = {
 /* process nr, pc,flags, qs,  queue, stack, traps, ipcto, call,  name */ 
 {IDLE,  idle_task,IDL_F,  8, IDLE_Q, IDL_S,     0,     0, no_c,"idle"  },
@@ -135,7 +128,7 @@ PUBLIC struct boot_image image[] = {
 {DS_PROC_NR,    0,SVM_F,  4,      4, 0,     SRV_T, SYS_M, c(ds_c),"ds"    },
 {MFS_PROC_NR,   0,SVM_F, 32,      5, 0,     SRV_T, SRV_M, c(fs_c),"mfs"   },
 {VM_PROC_NR,    0,VM_F, 32,      2, 0,     SRV_T, SRV_M, c(vm_c),"vm"    },
-{INIT_PROC_NR,  0,USR_F, dynamic_quanta_size, USER_Q, 0,     USR_T, USR_M, c(usr_c),"init"  },
+{INIT_PROC_NR,  0,USR_F, 16, USER_Q, 0,     USR_T, USR_M, c(usr_c),"init"  },
 };
 
 /* ## end tweak ## */
