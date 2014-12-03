@@ -32,9 +32,6 @@
 #include "proc.h"
 #include "ipc.h"
 #include <minix/com.h>
-/* ## start tweak ## */
-#include <unistd.h>
-/* ## end tweak ## */
 
 /* Define stack sizes for the kernel tasks included in the system image. */
 #define NO_STACK  0
