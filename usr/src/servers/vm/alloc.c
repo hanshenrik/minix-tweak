@@ -114,7 +114,7 @@ PRIVATE bitchunk_t pagemap[CHUNKS];
 }
 
 /* ## start tweak ## */
-#define _NR_LISTS 8
+#define _NR_LISTS 4
 PRIVATE struct quick_fit_list {
   struct hole *holes[_NR_HOLES];
   int hole_count;
@@ -263,7 +263,7 @@ PUBLIC phys_clicks alloc_mem_f(phys_clicks clicks, u32_t memflags)
         hp = hp->h_next;
         while (hp != NIL_HOLE) {
           if (hp->h_len >= clicks && hp->h_len < candidate_hole->h_len) {
-            candidate_hole = hp; /* or using pointer? */
+            candidate_hole = hp;
           }
 
           prev_ptr = hp;
@@ -292,12 +292,12 @@ PUBLIC phys_clicks alloc_mem_f(phys_clicks clicks, u32_t memflags)
         break;
       case(2): /* Quick fit */
         if (clicks >= 32) {
-          /* 32/4 will exceed _NR_LISTS, so use hole from last list, the one that contains holes of sizes 28-> */
+          /* 32/8 will exceed _NR_LISTS, so use hole from last list, the one that contains holes of sizes 32KB-> */
           mem = pop_hole_from_list(quick_fit_table[_NR_LISTS-1]);
         }
         else {
-          /* use hole from list at index (clicks/4) in quick_fit_table */
-          mem = pop_hole_from_list(quick_fit_table[(h->h_len) / 4]);
+          /* use hole from list at index (clicks/8) in quick_fit_table */
+          mem = pop_hole_from_list(quick_fit_table[(clicks/8)]);
         }
         break;
     }
@@ -344,12 +344,19 @@ PRIVATE phys_clicks pop_hole_from_list(struct quick_fit_list *qfl) {
 /*===========================================================================*
  *        init_quick_fit_table      *
  *===========================================================================*/
+ /*
+ * Using 4 lists, assuming h_len is represented as KB
+ * 0: 0-8KB
+ * 1: 8-16KB
+ * 2: 16-32KB
+ * 3: 32KB->
+ */
 PRIVATE void init_quick_fit_table(void) {
   register struct hole *hp, *prev_ptr;
   int i;
 
   /* allocate memory to each list in the table, initially there are 0 holes in each list */
-  for (i = 0; i < NO_LISTS; i++) {
+  for (i = 0; i < _NR_LISTS; i++) {
     quick_fit_table[i] = malloc(sizeof(struct quick_fit_list));
     quick_fit_table[i]->hole_count = 0;
   }
@@ -371,12 +378,12 @@ PRIVATE void init_quick_fit_table(void) {
 *===========================================================================*/
 PRIVATE void assign_hole_to_list(struct hole *h) {
   if (h->h_len >= 32) {
-    /* h_len/4 will exceed NO_LISTS, so assign to last list, the one that contains holes of size 28-> */
-    add_hole_to_list(quick_fit_table[NO_LISTS-1], h);
+    /* h_len/8 will exceed _NR_LISTS, so assign to last list, the one that contains holes of size 32KB-> */
+    add_hole_to_list(quick_fit_table[_NR_LISTS-1], h);
   }
   else {
-    /* assign to list at index (h_len/4) in quick_fit_table */
-    add_hole_to_list(quick_fit_table[(h->h_len) / 4], h);
+    /* assign to list at index (h_len/8) in quick_fit_table */
+    add_hole_to_list(quick_fit_table[(h->h_len) / 8], h);
   }
 }
 
@@ -388,31 +395,6 @@ PRIVATE void add_hole_to_list(struct quick_fit_list *qfl, struct hole *h) {
   qfl->holes[qfl->hole_count++] = h;
 }
 
-/*===========================================================================*
- *        do_allocalgorithm         *
- *===========================================================================*/
-PUBLIC int do_allocalgorithm(void){
-  printf("## do_allocalgorithm() in alloc.c!");
-   switch(call_nr) {
-      case(PM_ALLOC_GET):
-        return alloc_algorithm;
-        break;
-      case(PM_ALLOC_SET):
-        if(mp->mp_effuid != SUPER_USER){
-          printf("## Error: Must be SUPER_USER.\n");
-          return EPERM;
-        }
-        if(m_in.m1_i1 < 0 || m_in.m1_i1 > 3){
-          printf("## Error. alloc algorithm id must be > 0 and < 3 \n");
-          return EINVAL;
-        }
-        alloc_algorithm = m_in.m1_i1;
-        return OK;
-        break;
-      default:
-        panic(__FILE__,"## Error: Received bad signal in do_allocalgorithm.", NO_NUM);
-   }
-}
 /* ## end tweak ## */
 
 /*===========================================================================*
