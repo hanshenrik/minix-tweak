@@ -1,8 +1,0 @@
-Search list for smallest hole big enough
-
-"Best fit" tries to find a block that is "just right".  The problem is that this requires keeping your free list in sorted order, so you can see if there is a really good fit, but you still have to skip over all the free blocks that are too small.  As memory fragments, you get more and more small blocks that interfere with allocation performance, and deallocation performance requires that you do the insertion properly in the list.  So again, this allocator tends to have truly lousy performance.
-
-
-(1) let adequat_hole be the first hole in list of holes
-(2) for each hole in list; if this hole is smaller than adequate_hole and big enough, set adequate_hole to be this hole
-(3) use adequate_hole
