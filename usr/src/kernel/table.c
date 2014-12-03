@@ -32,6 +32,9 @@
 #include "proc.h"
 #include "ipc.h"
 #include <minix/com.h>
+/* ## start tweak ## */
+#include <unistd.h>
+/* ## end tweak ## */
 
 /* Define stack sizes for the kernel tasks included in the system image. */
 #define NO_STACK  0
@@ -112,35 +115,13 @@ PRIVATE int
 #define no_c { 0 }, 0
 
 /* ## start tweak ## */
-PRIVATE int get_nr_of_running_processes(void) {
-  struct kinfo kinfo;
-  getsysinfo(PM_PROC_NR, SI_KINFO, &kinfo);
-  printf("## kinfo.nr_pro = %d\n", kinfo.nr_pro);
-  return kinfo.nr_pro;
-}
 
-PRIVATE int get_quantum_size(void) {
-  int current_number_of_processes, dynamic_quanta_size;
-  current_number_of_processes = get_nr_of_running_processes();
+PRIVATE int dynamic_quanta_size = 8;
 
-  printf("## setting dynamic_quanta_size based on current_number_of_processes = %d\n", current_number_of_processes);
-
-  /* few processes running */
-  if (current_number_of_processes < 10) {
-    dynamic_quanta_size = 12;
-  }
-  /* medium number of processes */
-  else if (current_number_of_processes >= 10 && current_number_of_processes < 100) {
-    dynamic_quanta_size = 8; /* should the size increase or decrease when # of processes increases? */
-  }
-  /* many processes running */
-  else {
-    dynamic_quanta_size = 4;
-  }
+PUBLIC void set_quantum_size(int qs) {
+  dynamic_quanta_size = qs;
   printf("## dynamic_quanta_size = %d\n", dynamic_quanta_size);
-
 }
-/* ## end tweak ## */
 
 PUBLIC struct boot_image image[] = {
 /* process nr, pc,flags, qs,  queue, stack, traps, ipcto, call,  name */ 
@@ -157,8 +138,10 @@ PUBLIC struct boot_image image[] = {
 {DS_PROC_NR,    0,SVM_F,  4,      4, 0,     SRV_T, SYS_M, c(ds_c),"ds"    },
 {MFS_PROC_NR,   0,SVM_F, 32,      5, 0,     SRV_T, SRV_M, c(fs_c),"mfs"   },
 {VM_PROC_NR,    0,VM_F, 32,      2, 0,     SRV_T, SRV_M, c(vm_c),"vm"    },
-{INIT_PROC_NR,  0,USR_F, get_quantum_size(), USER_Q, 0,     USR_T, USR_M, c(usr_c),"init"  },
+{INIT_PROC_NR,  0,USR_F, dynamic_quanta_size, USER_Q, 0,     USR_T, USR_M, c(usr_c),"init"  },
 };
+
+/* ## end tweak ## */
 
 /* Verify the size of the system image table at compile time. Also verify that 
  * the first chunk of the ipc mask has enough bits to accommodate the processes
